@@ -6,6 +6,11 @@ import logo from './assets/logo.png';
 import NavbarComponent from './components/NavbarComponent';
 import HomePage from './components/HomePage';
 import ProfilePage from './components/ProfilePage';
+import DiscoverRoutesPage from './components/DiscoverRoutesPage';
+import FavoritesPage from './components/FavoritesPage';
+import UpcomingEventsPage from './components/UpcomingEventsPage';
+import MyRsvpsPage from './components/MyRsvpsPage';
+import testFirebase from './testFirebase';
 
 function App() {
   const [isLogin, setIsLogin] = useState(true);
@@ -18,6 +23,9 @@ function App() {
     confirmPassword: ''
   });
   const [error, setError] = useState('');
+
+  // Test Firebase connection
+  testFirebase();
 
   const handleChange = (e) => {
     setFormData({
@@ -69,6 +77,10 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage user={user} />} />
             <Route path="/profile" element={<ProfilePage user={user} />} />
+            <Route path="/discover" element={<DiscoverRoutesPage user={user} />} />
+            <Route path="/favorites" element={<FavoritesPage user={user} />} />
+            <Route path="/events" element={<UpcomingEventsPage user={user} />} />
+            <Route path="/my-rsvps" element={<MyRsvpsPage user={user} />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>

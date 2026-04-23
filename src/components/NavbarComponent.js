@@ -27,6 +27,10 @@ function NavbarComponent({ user, handleLogout }) {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
             <Nav.Link as={Link} to="/" className="nav-link-custom">Home</Nav.Link>
+            <Nav.Link as={Link} to="/discover" className="nav-link-custom">Discover Routes</Nav.Link>
+            <Nav.Link as={Link} to="/favorites" className="nav-link-custom">Favorites</Nav.Link>
+            <Nav.Link as={Link} to="/events" className="nav-link-custom">Events</Nav.Link>
+            <Nav.Link as={Link} to="/my-rsvps" className="nav-link-custom">My RSVPs</Nav.Link>
             <Nav.Link as={Link} to="/profile" className="nav-link-custom">Profile</Nav.Link>
             <Button variant="outline-danger" onClick={onLogout} className="logout-nav-btn">
               Sign Out

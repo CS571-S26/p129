@@ -1,0 +1,183 @@
+/* Full height fix */
+html, body, #root, .app {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+.home-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.hero-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 60px 0 40px;
+  text-align: center;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+.home-loading {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+  color: white;
+}
+
+.home-loading p {
+  margin-top: 20px;
+}
+
+.stats-row {
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+  background: white;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+}
+
+.stat-icon {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #666;
+  margin-top: 5px;
+}
+
+.section-title {
+  color: white;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.home-event-card {
+  height: 100%;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+
+.home-event-card:hover {
+  transform: translateY(-5px);
+}
+
+.event-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.event-card-header .card-title {
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 0;
+  color: #333;
+}
+
+.event-datetime {
+  display: flex;
+  gap: 15px;
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.event-location {
+  font-size: 0.8rem;
+  color: #888;
+  margin-bottom: 8px;
+}
+
+.event-stats {
+  display: flex;
+  gap: 15px;
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.event-participants {
+  font-size: 0.8rem;
+  color: #28a745;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.event-actions {
+  margin-top: 10px;
+}
+
+.rsvp-badge {
+  padding: 8px 12px;
+  font-size: 0.8rem;
+}
+
+.rsvp-btn {
+  width: 100%;
+}
+
+.explore-btn {
+  padding: 12px 30px;
+  font-size: 1.1rem;
+  border-radius: 30px;
+  background: white;
+  color: #dc3545;
+  border: 2px solid white;
+}
+
+.explore-btn:hover {
+  background: #dc3545;
+  color: white;
+  border-color: #dc3545;
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 1.8rem;
+  }
+  
+  .section-title {
+    font-size: 1.4rem;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .stat-value {
+    font-size: 22px;
+  }
+}
