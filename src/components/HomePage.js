@@ -13,7 +13,6 @@ function HomePage({ user }) {
   const [stats, setStats] = useState({
     totalMiles: 0,
     upcomingRuns: 0,
-    runningPartners: 0,
     eventsJoined: 0
   });
 
@@ -51,14 +50,12 @@ function HomePage({ user }) {
         setStats({
           totalMiles: totalMiles.toFixed(1),
           upcomingRuns: eventsData.filter(event => new Date(event.date) >= new Date()).length,
-          runningPartners: 8,
           eventsJoined: rsvpData.length
         });
       } else {
         setStats({
           totalMiles: 0,
           upcomingRuns: eventsData.length,
-          runningPartners: 0,
           eventsJoined: 0
         });
       }
@@ -86,7 +83,6 @@ function HomePage({ user }) {
   const statsCards = [
     { icon: '🏃', value: stats.totalMiles, label: 'Total Miles', color: '#FF6B6B' },
     { icon: '📅', value: stats.upcomingRuns, label: 'Upcoming Runs', color: '#4ECDC4' },
-    { icon: '👥', value: stats.runningPartners, label: 'Running Partners', color: '#45B7D1' },
     { icon: '✅', value: stats.eventsJoined, label: 'Events Joined', color: '#96CEB4' }
   ];
 
@@ -115,7 +111,7 @@ function HomePage({ user }) {
       <Container className="mt-4">
         <Row className="stats-row">
           {statsCards.map((stat, index) => (
-            <Col key={index} md={3} sm={6} className="mb-3">
+            <Col key={index} md={4} sm={12} className="mb-3">
               <Card className="stat-card text-center" style={{ borderTop: `4px solid ${stat.color}` }}>
                 <Card.Body>
                   <div className="stat-icon">{stat.icon}</div>

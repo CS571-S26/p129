@@ -10,6 +10,7 @@ import DiscoverRoutesPage from './components/DiscoverRoutesPage';
 import FavoritesPage from './components/FavoritesPage';
 import UpcomingEventsPage from './components/UpcomingEventsPage';
 import MyRsvpsPage from './components/MyRsvpsPage';
+import CommunityPostsPage from './components/CommunityPostsPage';
 import testFirebase from './testFirebase';
 
 function App() {
@@ -24,7 +25,6 @@ function App() {
   });
   const [error, setError] = useState('');
 
-  // Test Firebase connection
   testFirebase();
 
   const handleChange = (e) => {
@@ -68,7 +68,6 @@ function App() {
     });
   };
 
-  // If authenticated, show the main app with router
   if (isAuthenticated) {
     return (
       <Router basename="/p129">
@@ -81,6 +80,7 @@ function App() {
             <Route path="/favorites" element={<FavoritesPage user={user} />} />
             <Route path="/events" element={<UpcomingEventsPage user={user} />} />
             <Route path="/my-rsvps" element={<MyRsvpsPage user={user} />} />
+            <Route path="/community" element={<CommunityPostsPage user={user} />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>
@@ -88,7 +88,6 @@ function App() {
     );
   }
 
-  // Modern Login/Signup Page
   return (
     <div className="auth-app">
       <div className="auth-container-modern">

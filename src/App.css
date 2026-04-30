@@ -1,4 +1,3 @@
-/* Full height fix for all pages */
 html, body, #root {
   min-height: 100vh;
   margin: 0;
@@ -10,13 +9,11 @@ html, body, #root {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-/* Auth page background */
 .auth-app {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-/* Ensure all pages have full height background */
 .home-page,
 .discover-routes-page,
 .favorites-page,
@@ -27,7 +24,6 @@ html, body, #root {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-/* Navbar Styles */
 .navbar-custom {
   box-shadow: 0 2px 20px rgba(0,0,0,0.1);
 }
@@ -55,7 +51,6 @@ html, body, #root {
   padding: 5px 20px;
 }
 
-/* Auth Container Styles */
 .auth-app {
   display: flex;
   align-items: center;

@@ -31,6 +31,7 @@ function NavbarComponent({ user, handleLogout }) {
             <Nav.Link as={Link} to="/favorites" className="nav-link-custom">Favorites</Nav.Link>
             <Nav.Link as={Link} to="/events" className="nav-link-custom">Events</Nav.Link>
             <Nav.Link as={Link} to="/my-rsvps" className="nav-link-custom">My RSVPs</Nav.Link>
+            <Nav.Link as={Link} to="/community" className="nav-link-custom">Community</Nav.Link>
             <Nav.Link as={Link} to="/profile" className="nav-link-custom">Profile</Nav.Link>
             <Button variant="outline-danger" onClick={onLogout} className="logout-nav-btn">
               Sign Out

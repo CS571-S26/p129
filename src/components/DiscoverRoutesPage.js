@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Spinner, Alert } from 'react-bootstrap';
 import { GoogleMap, LoadScript, Marker, InfoWindow, Polyline } from '@react-google-maps/api';
 import { db } from '../firebase';
@@ -23,7 +23,6 @@ const mapOptions = {
   fullscreenControl: true
 };
 
-// Actual GPX path for Lake Monona Loop (from AllTrails)
 const lakeMononaPath = [
   { lat: 43.06994, lng: -89.40395 },
   { lat: 43.07016, lng: -89.40229 },
@@ -1361,14 +1360,19 @@ function DiscoverRoutesPage({ user }) {
   const [favorites, setFavorites] = useState([]);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const mapRef = useRef(null);
 
-  // Fetch routes from Firebase
   useEffect(() => {
     fetchRoutes();
     if (user) {
       fetchFavorites();
     }
   }, [user]);
+
+  useEffect(() => {
+    setMapLoaded(false);
+  }, []);
 
   const fetchRoutes = async () => {
     try {
@@ -1443,18 +1447,22 @@ function DiscoverRoutesPage({ user }) {
 
   const onLoad = useCallback((map) => {
     setMap(map);
+    setMapLoaded(true);
+    mapRef.current = map;
   }, []);
 
   const onUnmount = useCallback(() => {
     setMap(null);
+    setMapLoaded(false);
+    mapRef.current = null;
   }, []);
 
   const handleRouteSelect = (route) => {
     setSelectedRoute(route);
     setSelectedMarker({ lat: route.startLat, lng: route.startLng });
-    if (map) {
-      map.panTo({ lat: route.startLat, lng: route.startLng });
-      map.setZoom(14);
+    if (mapRef.current) {
+      mapRef.current.panTo({ lat: route.startLat, lng: route.startLng });
+      mapRef.current.setZoom(14);
     }
   };
 
@@ -1495,7 +1503,6 @@ function DiscoverRoutesPage({ user }) {
 
   return (
     <div className="discover-routes-page">
-      {/* Success Alert */}
       {showAlert && (
         <div className="success-alert">
           {alertMessage}
@@ -1517,7 +1524,6 @@ function DiscoverRoutesPage({ user }) {
 
       <Container fluid className="mt-4 mb-5">
         <Row>
-          {/* Left Side - Route List */}
           <Col lg={5} xl={4} className="routes-list-container">
             <div className="routes-list-header">
               <h3>All Routes</h3>
@@ -1553,11 +1559,12 @@ function DiscoverRoutesPage({ user }) {
             </div>
           </Col>
 
-          {/* Right Side - Map and Details */}
           <Col lg={7} xl={8}>
-            {/* Map Container */}
             <div className="map-container">
-              <LoadScript googleMapsApiKey={apiKey}>
+              <LoadScript 
+                googleMapsApiKey={apiKey}
+                loading="async"
+              >
                 <GoogleMap
                   mapContainerStyle={mapContainerStyle}
                   center={center}
@@ -1566,7 +1573,6 @@ function DiscoverRoutesPage({ user }) {
                   onLoad={onLoad}
                   onUnmount={onUnmount}
                 >
-                  {/* Draw the path lines for each route */}
                   {routes.map(route => route.path && route.path.length > 0 && (
                     <Polyline
                       key={`path-${route.id}`}
@@ -1579,7 +1585,6 @@ function DiscoverRoutesPage({ user }) {
                     />
                   ))}
 
-                  {/* Markers for each route start point */}
                   {routes.map(route => (
                     <Marker
                       key={`marker-${route.id}`}
@@ -1597,7 +1602,6 @@ function DiscoverRoutesPage({ user }) {
                     />
                   ))}
 
-                  {/* Info window for selected route */}
                   {selectedRoute && selectedMarker && window.google && (
                     <InfoWindow
                       position={selectedMarker}
@@ -1618,9 +1622,14 @@ function DiscoverRoutesPage({ user }) {
                   )}
                 </GoogleMap>
               </LoadScript>
+              {!mapLoaded && (
+                <div className="map-loading-overlay">
+                  <Spinner animation="border" variant="danger" />
+                  <p>Loading map...</p>
+                </div>
+              )}
             </div>
 
-            {/* Route Details Panel */}
             {selectedRoute ? (
               <div className="route-details-panel">
                 <div className="route-details-header">
@@ -1669,7 +1678,6 @@ function DiscoverRoutesPage({ user }) {
                     <Button 
                       variant="outline-danger" 
                       size="lg" 
-                      className="favorite-btn"
                       onClick={() => removeFromFavorites(selectedRoute.id, selectedRoute.name)}
                     >
                       ❤️ Remove from Favorites
@@ -1678,7 +1686,6 @@ function DiscoverRoutesPage({ user }) {
                     <Button 
                       variant="danger" 
                       size="lg" 
-                      className="favorite-btn"
                       onClick={() => addToFavorites(selectedRoute)}
                     >
                       🤍 Add to Favorites

@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Spinner, Modal, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
-import { collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { collection, query, where, getDocs, updateDoc, doc, setDoc, getDoc } from 'firebase/firestore';
 import './ProfilePage.css';
 
 function ProfilePage({ user }) {
   const navigate = useNavigate();
-  const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [userRsvps, setUserRsvps] = useState([]);
   const [userFavorites, setUserFavorites] = useState([]);
@@ -18,28 +17,111 @@ function ProfilePage({ user }) {
     favoriteRoutes: 0,
     eventsJoined: 0,
     averagePace: '--',
-    joinDate: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    joinDate: ''
   });
   const [userInfo, setUserInfo] = useState({
-    name: user?.name || 'Runner',
-    email: user?.email || '',
+    name: '',
+    email: '',
     location: 'Madison, WI',
     preferredPace: '9:30 /mi',
     bio: 'Passionate runner exploring Madison trails!'
   });
   const [showEditModal, setShowEditModal] = useState(false);
   const [tempUserInfo, setTempUserInfo] = useState(userInfo);
+  const [isNewUser, setIsNewUser] = useState(false);
 
   useEffect(() => {
     if (user) {
       fetchUserData();
+      loadUserProfile();
     }
   }, [user]);
+
+  const loadUserProfile = async () => {
+    try {
+      const userDocRef = doc(db, "users", user.email);
+      const userDoc = await getDoc(userDocRef);
+      
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        setUserInfo({
+          name: userData.name || user.email.split('@')[0],
+          email: user.email,
+          location: userData.location || 'Madison, WI',
+          preferredPace: userData.preferredPace || '9:30 /mi',
+          bio: userData.bio || 'Passionate runner exploring Madison trails!'
+        });
+        setStats(prev => ({
+          ...prev,
+          averagePace: userData.preferredPace || '9:30 /mi',
+          joinDate: userData.joinDate || new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+        }));
+        setIsNewUser(false);
+      } else {
+        const newUserData = {
+          name: user.name || user.email.split('@')[0],
+          email: user.email,
+          location: 'Madison, WI',
+          preferredPace: '9:30 /mi',
+          bio: 'Passionate runner exploring Madison trails!',
+          joinDate: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+          createdAt: new Date().toISOString()
+        };
+        await setDoc(userDocRef, newUserData);
+        setUserInfo({
+          name: newUserData.name,
+          email: user.email,
+          location: newUserData.location,
+          preferredPace: newUserData.preferredPace,
+          bio: newUserData.bio
+        });
+        setStats(prev => ({
+          ...prev,
+          averagePace: newUserData.preferredPace,
+          joinDate: newUserData.joinDate
+        }));
+        setIsNewUser(true);
+      }
+    } catch (error) {
+      console.error("Error loading user profile:", error);
+      setUserInfo({
+        name: user?.name || user?.email?.split('@')[0] || 'Runner',
+        email: user?.email || '',
+        location: 'Madison, WI',
+        preferredPace: '9:30 /mi',
+        bio: 'Passionate runner exploring Madison trails!'
+      });
+    }
+  };
+
+  const saveUserProfile = async () => {
+    try {
+      const userDocRef = doc(db, "users", user.email);
+      await updateDoc(userDocRef, {
+        name: tempUserInfo.name,
+        location: tempUserInfo.location,
+        preferredPace: tempUserInfo.preferredPace,
+        bio: tempUserInfo.bio,
+        updatedAt: new Date().toISOString()
+      });
+      
+      setUserInfo(tempUserInfo);
+      setStats(prev => ({
+        ...prev,
+        averagePace: tempUserInfo.preferredPace
+      }));
+      setShowEditModal(false);
+      
+      alert("Profile updated successfully!");
+    } catch (error) {
+      console.error("Error saving profile:", error);
+      alert("Failed to save profile. Please try again.");
+    }
+  };
 
   const fetchUserData = async () => {
     setLoading(true);
     try {
-      // Fetch user's RSVPs
       const rsvpQuery = query(collection(db, "rsvps"), where("userId", "==", user.email));
       const rsvpSnapshot = await getDocs(rsvpQuery);
       const rsvpData = [];
@@ -48,7 +130,6 @@ function ProfilePage({ user }) {
       });
       setUserRsvps(rsvpData);
 
-      // Fetch all events to get details
       const eventsSnapshot = await getDocs(collection(db, "events"));
       const eventsData = [];
       eventsSnapshot.forEach((doc) => {
@@ -56,7 +137,6 @@ function ProfilePage({ user }) {
       });
       setEvents(eventsData);
 
-      // Fetch user's favorites
       const favQuery = query(collection(db, "favorites"), where("userId", "==", user.email));
       const favSnapshot = await getDocs(favQuery);
       const favData = [];
@@ -65,21 +145,19 @@ function ProfilePage({ user }) {
       });
       setUserFavorites(favData);
 
-      // Calculate stats
       let totalMiles = 0;
       rsvpData.forEach(rsvp => {
         const miles = parseFloat(rsvp.routeDistance) || 0;
         totalMiles += miles;
       });
 
-      setStats({
+      setStats(prev => ({
+        ...prev,
         totalMiles: totalMiles.toFixed(1),
         runsCompleted: rsvpData.length,
         favoriteRoutes: favData.length,
-        eventsJoined: rsvpData.length,
-        averagePace: userInfo.preferredPace,
-        joinDate: stats.joinDate
-      });
+        eventsJoined: rsvpData.length
+      }));
 
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -106,19 +184,6 @@ function ProfilePage({ user }) {
     setShowEditModal(true);
   };
 
-  const handleSaveProfile = async () => {
-    setUserInfo(tempUserInfo);
-    setStats({
-      ...stats,
-      averagePace: tempUserInfo.preferredPace
-    });
-    setShowEditModal(false);
-    setIsEditing(false);
-    
-    // Here you could save to a users collection in Firebase if you have one
-    console.log("Profile updated:", tempUserInfo);
-  };
-
   if (loading) {
     return (
       <div className="profile-loading">
@@ -132,7 +197,6 @@ function ProfilePage({ user }) {
     <div className="profile-page">
       <Container className="mt-4 mb-5">
         <Row>
-          {/* Left Column - Profile Card */}
           <Col lg={4} md={12} className="mb-4">
             <Card className="profile-card text-center">
               <Card.Body>
@@ -158,9 +222,7 @@ function ProfilePage({ user }) {
             </Card>
           </Col>
 
-          {/* Right Column - Stats and Info */}
           <Col lg={8} md={12}>
-            {/* Running Stats Card */}
             <Card className="info-card mb-4">
               <Card.Header as="h5">
                 Running Stats 📊
@@ -206,7 +268,6 @@ function ProfilePage({ user }) {
               </Card.Body>
             </Card>
 
-            {/* My RSVPs Card */}
             <Card className="info-card mb-4">
               <Card.Header as="h5">
                 My RSVPs 📋
@@ -256,7 +317,6 @@ function ProfilePage({ user }) {
               </Card.Body>
             </Card>
 
-            {/* Favorite Routes Card */}
             <Card className="info-card">
               <Card.Header as="h5">
                 Favorite Routes ❤️
@@ -310,7 +370,6 @@ function ProfilePage({ user }) {
         </Row>
       </Container>
 
-      {/* Edit Profile Modal */}
       <Modal show={showEditModal} onHide={() => setShowEditModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>Edit Profile</Modal.Title>
@@ -369,7 +428,7 @@ function ProfilePage({ user }) {
           <Button variant="secondary" onClick={() => setShowEditModal(false)}>
             Cancel
           </Button>
-          <Button variant="danger" onClick={handleSaveProfile}>
+          <Button variant="danger" onClick={saveUserProfile}>
             Save Changes
           </Button>
         </Modal.Footer>
